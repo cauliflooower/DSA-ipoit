@@ -50,14 +50,72 @@ import java.util.Scanner;
 public class C_EditDist {
 
     String getDistanceEdinting(String one, String two) {
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     НАЧАЛО ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
+        int lenOne = one.length();
+        int lenTwo = two.length();
 
+        // Создаем двумерный массив для хранения расстояний
+        int[][] dp = new int[lenOne + 1][lenTwo + 1];
+        String[][] operations = new String[lenOne + 1][lenTwo + 1];
 
-        String result = "";
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     КОНЕЦ ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
-        return result;
+        // Инициализация первой строки и первого столбца
+        for (int i = 0; i <= lenOne; i++) {
+            dp[i][0] = i; // Расстояние от строки к пустой строке
+            operations[i][0] = "-"; // Удаление
+        }
+        for (int j = 0; j <= lenTwo; j++) {
+            dp[0][j] = j; // Расстояние от пустой строки к строке
+            operations[0][j] = "+"; // Вставка
+        }
+
+        // Заполнение массива
+        for (int i = 1; i <= lenOne; i++) {
+            for (int j = 1; j <= lenTwo; j++) {
+                if (one.charAt(i - 1) == two.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                    operations[i][j] = "#"; // Совпадение
+                } else {
+                    int delete = dp[i - 1][j] + 1;
+                    int insert = dp[i][j - 1] + 1;
+                    int replace = dp[i - 1][j - 1] + 1;
+
+                    // Находим минимальное значение и соответствующую операцию
+                    if (delete <= insert && delete <= replace) {
+                        dp[i][j] = delete;
+                        operations[i][j] = "-"+one.charAt(i - 1); // Удаление
+                    } else if (insert <= delete && insert <= replace) {
+                        dp[i][j] = insert;
+                        operations[i][j] = "+"+two.charAt(j - 1); // Вставка
+                    } else {
+                        dp[i][j] = replace;
+                        operations[i][j] = "~"+two.charAt(j - 1); // Замена
+                    }
+                }
+            }
+        }
+
+        // Формируем результат
+        StringBuilder result = new StringBuilder();
+        int i = lenOne, j = lenTwo;
+        while (i > 0 || j > 0) {
+            if (i > 0 && j > 0 && operations[i][j].equals("#")) {
+                result.append("#,");
+                i--;
+                j--;
+            } else if (i > 0 && operations[i][j].startsWith("-")) {
+                result.append(operations[i][j]).append(",");
+                i--;
+            } else if (j > 0 && operations[i][j].startsWith("+")) {
+                result.append(operations[i][j]).append(",");
+                j--;
+            } else if (i > 0 && j > 0 && operations[i][j].startsWith("~")) {
+                result.append(operations[i][j]).append(",");
+                i--;
+                j--;
+            }
+        }
+
+        return result.toString();
     }
-
 
     public static void main(String[] args) throws FileNotFoundException {
         InputStream stream = C_EditDist.class.getResourceAsStream("dataABC.txt");
