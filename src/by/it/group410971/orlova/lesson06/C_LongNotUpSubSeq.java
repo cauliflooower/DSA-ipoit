@@ -2,7 +2,7 @@ package by.it.a_khmelev.lesson06;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Scanner;
+import java.util.*;
 
 /*
 Задача на программирование: наибольшая невозростающая подпоследовательность
@@ -37,30 +37,59 @@ import java.util.Scanner;
 
 public class C_LongNotUpSubSeq {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        InputStream stream = B_LongDivComSubSeq.class.getResourceAsStream("dataC.txt");
+    public static void main(String[] args) {
+        InputStream stream = C_LongNotUpSubSeq.class.getResourceAsStream("dataC.txt");
         C_LongNotUpSubSeq instance = new C_LongNotUpSubSeq();
-        int result = instance.getNotUpSeqSize(stream);
-        System.out.print(result);
+        instance.getNotUpSeqSize(stream);
     }
 
-    int getNotUpSeqSize(InputStream stream) throws FileNotFoundException {
-        //подготовка к чтению данных
+    int getNotUpSeqSize(InputStream stream) {
         Scanner scanner = new Scanner(stream);
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     НАЧАЛО ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
-        //общая длина последовательности
         int n = scanner.nextInt();
-        int[] m = new int[n];
-        //читаем всю последовательность
+        int[] a = new int[n];
+
         for (int i = 0; i < n; i++) {
-            m[i] = scanner.nextInt();
+            a[i] = scanner.nextInt();
         }
-        //тут реализуйте логику задачи методами динамического программирования (!!!)
-        int result = 0;
 
+        // Динамика
+        int[] dp = new int[n];
+        int[] prev = new int[n];
+        Arrays.fill(dp, 1);
+        Arrays.fill(prev, -1);
 
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     КОНЕЦ ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
-        return result;
+        int maxLength = 1;
+        int lastIndex = 0;
+
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (a[j] >= a[i] && dp[j] + 1 > dp[i]) {
+                    dp[i] = dp[j] + 1;
+                    prev[i] = j;
+                }
+            }
+            if (dp[i] > maxLength) {
+                maxLength = dp[i];
+                lastIndex = i;
+            }
+        }
+
+        // Восстановим индексы
+        List<Integer> indices = new ArrayList<>();
+        while (lastIndex != -1) {
+            indices.add(lastIndex + 1); // +1 для индексации с 1
+            lastIndex = prev[lastIndex];
+        }
+
+        Collections.reverse(indices);
+
+        // Вывод
+        System.out.println(maxLength);
+        for (int index : indices) {
+            System.out.print(index + " ");
+        }
+        System.out.println();
+
+        return maxLength;
     }
-
 }
