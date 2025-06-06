@@ -2,7 +2,7 @@ package by.it.a_khmelev.lesson05;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Scanner;
+import java.util.*;
 
 /*
 Видеорегистраторы и площадь.
@@ -46,52 +46,80 @@ public class A_QSort {
     }
 
     int[] getAccessory(InputStream stream) throws FileNotFoundException {
-        //подготовка к чтению данных
+        // Подготовка к чтению данных
         Scanner scanner = new Scanner(stream);
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     НАЧАЛО ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
-        //число отрезков отсортированного массива
+        // Число отрезков
         int n = scanner.nextInt();
         Segment[] segments = new Segment[n];
-        //число точек
+        // Число точек
         int m = scanner.nextInt();
         int[] points = new int[m];
         int[] result = new int[m];
 
-        //читаем сами отрезки
+        // Читаем сами отрезки
         for (int i = 0; i < n; i++) {
-            //читаем начало и конец каждого отрезка
             segments[i] = new Segment(scanner.nextInt(), scanner.nextInt());
         }
-        //читаем точки
+        // Читаем точки
         for (int i = 0; i < m; i++) {
             points[i] = scanner.nextInt();
         }
-        //тут реализуйте логику задачи с применением быстрой сортировки
-        //в классе отрезка Segment реализуйте нужный для этой задачи компаратор
 
+        // Сортируем отрезки
+        Arrays.sort(segments, Comparator.comparingInt(s -> s.start));
 
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     КОНЕЦ ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
+        // Создаем массив пар (точка, индекс)
+        PointWithIndex[] indexedPoints = new PointWithIndex[m];
+        for (int i = 0; i < m; i++) {
+            indexedPoints[i] = new PointWithIndex(points[i], i);
+        }
+
+        // Сортируем точки
+        Arrays.sort(indexedPoints, Comparator.comparingInt(p -> p.value));
+
+        // Подсчет охвата
+        int segmentIndex = 0;
+        for (PointWithIndex point : indexedPoints) {
+            while (segmentIndex < n && segments[segmentIndex].start <= point.value) {
+                segmentIndex++;
+            }
+            // Теперь segmentIndex указывает на количество отрезков, которые начинаются до или в точке
+            int count = 0;
+            for (int j = 0; j < segmentIndex; j++) {
+                if (segments[j].stop >= point.value) {
+                    count++;
+                }
+            }
+            result[point.index] = count;
+        }
+
         return result;
     }
 
-    //отрезок
-    private class Segment implements Comparable<Segment> {
+    // Отрезок
+    private class Segment {
         int start;
         int stop;
 
         Segment(int start, int stop) {
-            this.start = start;
-            this.stop = stop;
-            //тут вообще-то лучше доделать конструктор на случай если
-            //концы отрезков придут в обратном порядке
-        }
-
-        @Override
-        public int compareTo(Segment o) {
-            //подумайте, что должен возвращать компаратор отрезков
-
-            return 0;
+            if (start > stop) {
+                this.start = stop;
+                this.stop = start;
+            } else {
+                this.start = start;
+                this.stop = stop;
+            }
         }
     }
 
+    // Класс для хранения точки с индексом
+    private class PointWithIndex {
+        int value;
+        int index;
+
+        PointWithIndex(int value, int index) {
+            this.value = value;
+            this.index = index;
+        }
+    }
 }
