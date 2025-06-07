@@ -2,7 +2,7 @@ package by.it.a_khmelev.lesson04;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Scanner;
+import java.util.*;
 
 /*
 Рассчитать число инверсий одномерного массива.
@@ -44,21 +44,50 @@ public class C_GetInversions {
     }
 
     int calc(InputStream stream) throws FileNotFoundException {
-        //подготовка к чтению данных
         Scanner scanner = new Scanner(stream);
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     НАЧАЛО ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!
-        //размер массива
         int n = scanner.nextInt();
-        //сам массив
         int[] a = new int[n];
         for (int i = 0; i < n; i++) {
             a[i] = scanner.nextInt();
         }
-        int result = 0;
-        //!!!!!!!!!!!!!!!!!!!!!!!!     тут ваше решение   !!!!!!!!!!!!!!!!!!!!!!!!
+        return mergeSortAndCount(a, 0, n - 1);
+    }
 
+    int mergeSortAndCount(int[] arr, int left, int right) {
+        int count = 0;
+        if (left < right) {
+            int mid = (left + right) / 2;
+            count += mergeSortAndCount(arr, left, mid);
+            count += mergeSortAndCount(arr, mid + 1, right);
+            count += merge(arr, left, mid, right);
+        }
+        return count;
+    }
 
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     КОНЕЦ ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
-        return result;
+    int merge(int[] arr, int left, int mid, int right) {
+        int[] temp = new int[right - left + 1];
+        int i = left, j = mid + 1, k = 0;
+        int inversions = 0;
+
+        while (i <= mid && j <= right) {
+            if (arr[i] <= arr[j]) {
+                temp[k++] = arr[i++];
+            } else {
+                temp[k++] = arr[j++];
+                // Все элементы слева от i (в arr[left..mid]) больше arr[j], значит инверсии:
+                inversions += (mid - i + 1);
+            }
+        }
+
+        while (i <= mid) {
+            temp[k++] = arr[i++];
+        }
+        while (j <= right) {
+            temp[k++] = arr[j++];
+        }
+
+        System.arraycopy(temp, 0, arr, left, temp.length);
+
+        return inversions;
     }
 }
