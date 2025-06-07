@@ -2,9 +2,7 @@ package by.it.a_khmelev.lesson03;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 // Lesson 3. C_Heap.
 // Задача: построить max-кучу = пирамиду = бинарное сбалансированное дерево на массиве.
@@ -69,30 +67,67 @@ public class C_HeapMax {
     }
 
     private class MaxHeap {
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! НАЧАЛО ЗАДАЧИ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-        //тут запишите ваше решение.
-        //Будет мало? Ну тогда можете его собрать как Generic и/или использовать в варианте B
         private List<Long> heap = new ArrayList<>();
 
-        int siftDown(int i) { //просеивание вверх
-
+        int siftUp(int i) {
+            while (i > 0) {
+                int parent = (i - 1) / 2;
+                if (heap.get(i) > heap.get(parent)) {
+                    swap(i, parent);
+                    i = parent;
+                } else {
+                    break;
+                }
+            }
             return i;
         }
 
-        int siftUp(int i) { //просеивание вниз
+        int siftDown(int i) {
+            int left, right, largest;
+            while (2 * i + 1 < heap.size()) {
+                left = 2 * i + 1;
+                right = 2 * i + 2;
+                largest = i;
 
+                if (left < heap.size() && heap.get(left) > heap.get(largest)) {
+                    largest = left;
+                }
+
+                if (right < heap.size() && heap.get(right) > heap.get(largest)) {
+                    largest = right;
+                }
+
+                if (largest != i) {
+                    swap(i, largest);
+                    i = largest;
+                } else {
+                    break;
+                }
+            }
             return i;
         }
 
-        void insert(Long value) { //вставка
+        void insert(Long value) {
+            heap.add(value);
+            siftUp(heap.size() - 1);
         }
 
-        Long extractMax() { //извлечение и удаление максимума
-            Long result = null;
-
+        Long extractMax() {
+            if (heap.isEmpty()) return null;
+            Long result = heap.get(0);
+            int lastIndex = heap.size() - 1;
+            heap.set(0, heap.get(lastIndex));
+            heap.remove(lastIndex);
+            siftDown(0);
+            System.out.print(result); // Печать, как ожидается в задаче
             return result;
         }
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! КОНЕЦ ЗАДАЧИ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+
+        private void swap(int i, int j) {
+            Long tmp = heap.get(i);
+            heap.set(i, heap.get(j));
+            heap.set(j, tmp);
+        }
     }
 
     // РЕМАРКА. Это задание исключительно учебное.
