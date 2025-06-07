@@ -1,7 +1,6 @@
 package by.it.a_khmelev.lesson02;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 /*
 Даны интервальные события events
 реализуйте метод calcStartTimes, так, чтобы число принятых к выполнению
@@ -25,16 +24,21 @@ public class B_Sheduler {
     }
 
     List<Event> calcStartTimes(Event[] events, int from, int to) {
-        //Events - события которые нужно распределить в аудитории
-        //в период [from, int] (включительно).
-        //оптимизация проводится по наибольшему числу непересекающихся событий.
-        //Начало и конец событий могут совпадать.
-        List<Event> result;
-        result = new ArrayList<>();
-        //ваше решение.
+        List<Event> result = new ArrayList<>();
 
+        // Сортировка событий по времени окончания
+        Arrays.sort(events, Comparator.comparingInt(e -> e.stop));
 
-        return result;          //вернем итог
+        int currentTime = from;
+
+        for (Event event : events) {
+            if (event.start >= currentTime) {
+                result.add(event);
+                currentTime = event.stop;
+            }
+        }
+
+        return result;
     }
 
     //событие у аудитории(два поля: начало и конец)

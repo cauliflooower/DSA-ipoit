@@ -15,7 +15,7 @@ package by.it.a_khmelev.lesson02;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Scanner;
+import java.util.*;
 
 public class C_GreedyKnapsack {
     public static void main(String[] args) throws FileNotFoundException {
@@ -28,28 +28,32 @@ public class C_GreedyKnapsack {
 
     double calc(InputStream inputStream) throws FileNotFoundException {
         Scanner input = new Scanner(inputStream);
-        int n = input.nextInt();      //сколько предметов в файле
-        int W = input.nextInt();      //какой вес у рюкзака
-        Item[] items = new Item[n];   //получим список предметов
-        for (int i = 0; i < n; i++) { //создавая каждый конструктором
+        int n = input.nextInt();  // кол-во предметов
+        int W = input.nextInt();  // вместимость рюкзака
+
+        Item[] items = new Item[n];
+        for (int i = 0; i < n; i++) {
             items[i] = new Item(input.nextInt(), input.nextInt());
         }
-        //покажем предметы
-        for (Item item : items) {
-            System.out.println(item);
-        }
-        System.out.printf("Всего предметов: %d. Рюкзак вмещает %d кг.\n", n, W);
 
-        //тут необходимо реализовать решение задачи
-        //итогом является максимально воможная стоимость вещей в рюкзаке
-        //вещи можно резать на кусочки (непрерывный рюкзак)
+        // Сортировка по убыванию стоимости на единицу веса
+        Arrays.sort(items);
+
         double result = 0;
-        //тут реализуйте алгоритм сбора рюкзака
-        //будет особенно хорошо, если с собственной сортировкой
-        //кроме того, можете описать свой компаратор в классе Item
+        int capacity = W;
 
-        //ваше решение.
+        for (Item item : items) {
+            if (capacity == 0) break;
 
+            if (item.weight <= capacity) {
+                result += item.cost;
+                capacity -= item.weight;
+            } else {
+                // берем только часть предмета
+                result += (double) item.cost * capacity / item.weight;
+                capacity = 0;
+            }
+        }
 
         System.out.printf("Удалось собрать рюкзак на сумму %f\n", result);
         return result;
@@ -67,17 +71,17 @@ public class C_GreedyKnapsack {
         @Override
         public String toString() {
             return "Item{" +
-                   "cost=" + cost +
-                   ", weight=" + weight +
-                   '}';
+                    "cost=" + cost +
+                    ", weight=" + weight +
+                    '}';
         }
 
         @Override
         public int compareTo(Item o) {
-            //тут может быть ваш компаратор
-
-
-            return 0;
+            // Сортировка по убыванию удельной ценности (стоимость / вес)
+            double thisRatio = (double) this.cost / this.weight;
+            double otherRatio = (double) o.cost / o.weight;
+            return Double.compare(otherRatio, thisRatio); // убывание
         }
     }
 }
